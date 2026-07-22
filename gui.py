@@ -263,7 +263,7 @@ def refresh_table():
     for row in tree.get_children():
         tree.delete(row)
 
-    # reset table
+    # refill table
     for d in devices:
         tree.insert("", "end", values=(
             d["name"],
