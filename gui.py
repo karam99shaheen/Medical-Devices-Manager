@@ -317,11 +317,7 @@ def refresh_table():
     for row in tree.get_children():
         tree.delete(row)
 
-<<<<<<< HEAD
     # refill table
-=======
-    # reset table
->>>>>>> d43168224d1c5aa4d622cc48fdfa6479dafb92a3
     for d in devices:
         tree.insert("", "end", values=(
             d["name"],
