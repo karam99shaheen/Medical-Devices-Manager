@@ -259,11 +259,11 @@ def search_device_from_gui(device_id, window_to_close):
 
     window_to_close.destroy()     
 def refresh_table():
-    # حذف كل الصفوف القديمة
+    # del old rows
     for row in tree.get_children():
         tree.delete(row)
 
-    # إعادة تعبئة الجدول
+    # reset table
     for d in devices:
         tree.insert("", "end", values=(
             d["name"],
