@@ -1,14 +1,14 @@
 import tkinter as tk
 from tkinter import ttk
 from tkinter import filedialog, messagebox
-from core import add_device, update_status, delete_device, find_device, save_to_csv, load_from_csv, devices
+from core import add_device, update_status, delete_device, find_device,find_devices_by_name, save_to_csv, load_from_csv, devices
 from tkcalendar import DateEntry
 
 # ---------------------- Main Window ----------------------
 
 window = tk.Tk()
 window.title("Medical Devices Manager")
-window.geometry("900x500")
+window.geometry("1150x500")
 window.resizable(False, False)
 
 # ---------------------- Title ----------------------
@@ -29,14 +29,17 @@ update_btn.grid(row=0, column=1, padx=10)
 delete_btn = tk.Button(buttons_frame, text="Delete Device", width=15, command=lambda: open_delete_window())
 delete_btn.grid(row=0, column=2, padx=10)
 
-search_btn = tk.Button(buttons_frame, text="Search Device", width=15, command=lambda: open_search_window())
+search_btn = tk.Button(buttons_frame, text="Search by ID", width=15, command=lambda: open_search_window())
 search_btn.grid(row=0, column=3, padx=10)
 
+search_name_btn = tk.Button(buttons_frame, text="Search by Name", width=15, command=lambda: open_search_by_name_window())
+search_name_btn.grid(row=0, column=4, padx=10)
+
 save_btn = tk.Button(buttons_frame, text="Save to CSV", width=15, command=lambda: save_devices_gui())
-save_btn.grid(row=0, column=4, padx=10)
+save_btn.grid(row=0, column=5, padx=10)
 
 load_btn = tk.Button(buttons_frame, text="Load from CSV", width=15, command=lambda: load_devices_gui())
-load_btn.grid(row=0, column=5, padx=10)
+load_btn.grid(row=0, column=6, padx=10)
 
 # ---------------------- Table Frame ----------------------
 
@@ -156,7 +159,7 @@ def open_delete_window():
 
 def open_search_window():
     search_win = tk.Toplevel(window)
-    search_win.title("Search Device")
+    search_win.title("Search Device by ID")
     search_win.geometry("300x200")
     search_win.resizable(False, False)
 
@@ -173,6 +176,29 @@ def open_search_window():
         width=20,
         command=lambda: search_device_from_gui(
             id_entry.get(),
+            search_win
+        )
+    ).pack(pady=20)   
+
+def open_search_by_name_window():
+    search_win = tk.Toplevel(window)
+    search_win.title("Search Device by Name")
+    search_win.geometry("300x200")
+    search_win.resizable(False, False)
+
+    tk.Label(search_win, text="Device Name:", font=("Arial", 12)).pack(pady=10)
+    name_entry = tk.Entry(search_win, width=30)
+    name_entry.pack()
+
+    tk.Button(
+        search_win,
+        text="Search",
+        font=("Arial", 12, "bold"),
+        bg="#9C27B0",
+        fg="white",
+        width=20,
+        command=lambda: search_by_name_from_gui(
+            name_entry.get(),
             search_win
         )
     ).pack(pady=20)    
@@ -257,13 +283,41 @@ def search_device_from_gui(device_id, window_to_close):
     else:
         messagebox.showerror("Not Found", "Device not found!")
 
-    window_to_close.destroy()     
+    window_to_close.destroy()   
+
+def search_by_name_from_gui(name_query, window_to_close):
+    from tkinter import messagebox
+
+    if not name_query.strip():
+        messagebox.showerror("Error", "Please enter a name to search!")
+        return
+
+    results = find_devices_by_name(name_query)
+
+    if results:
+        info = ""
+        for device in results:
+            info += (
+                f"Name: {device['name']}\n"
+                f"ID: {device['id']}\n"
+                f"Type: {device['type']}\n"
+                f"Status: {device['status']}\n"
+                f"Maintenance: {device['maintenance_date']}\n"
+                f"{'-' * 30}\n"
+            )
+        messagebox.showinfo(f"Found {len(results)} Device(s)", info)
+    else:
+        messagebox.showerror("Not Found", "No devices found with that name!")
+
+    window_to_close.destroy()
+
+
 def refresh_table():
-    # حذف كل الصفوف القديمة
+    # del old rows
     for row in tree.get_children():
         tree.delete(row)
 
-    # إعادة تعبئة الجدول
+    # refill table
     for d in devices:
         tree.insert("", "end", values=(
             d["name"],

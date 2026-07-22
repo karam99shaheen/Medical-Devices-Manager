@@ -92,6 +92,17 @@ def find_device(device_id):
 
     return None
 
+def find_devices_by_name(name_query):
+    """Return a list of devices whose name contains the search query (case-insensitive)."""
+
+    results = []
+
+    for device in devices:
+        if name_query.lower() in device["name"].lower():
+            results.append(device)
+
+    return results
+
 
 def save_to_csv(filename):
     """Save all devices to a CSV file."""
